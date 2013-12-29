@@ -7,7 +7,7 @@ class Entry:
   def __init__(self, title, creator):
     self.title = title
     self.creator = creator 
-    self.description = "No description"
+    self.description = "No description. :("
     self.timestamp = time.time()
 
 class TodoList(BotPlugin):
@@ -33,10 +33,10 @@ class TodoList(BotPlugin):
   @botcmd
   def todolist_create(self, mess, args):
     self.l.append(Entry(args, get_sender_username(mess)))
-    return "Created a new entry with id " + str(len(self.l)-1) + ", use !todolist description " + str(len(self.l)-1) + " to add a detailed description to it."
+    return "Created a new entry with id " + str(len(self.l)-1) + ", use !todolist describe" + str(len(self.l)-1) + " to add a detailed description to it."
 
   @botcmd(split_args_with=' ')
-  def todolist_description(self, mess, args):
+  def todolist_describe(self, mess, args):
     i = int(args[0])
     if i < len(self.l):
       self.l[i].description = ''.join(args[1::])
