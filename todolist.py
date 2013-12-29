@@ -36,10 +36,20 @@ class TodoList(BotPlugin):
     return "Created a new entry with id " + str(len(self.l)-1) + ", use !todolist describe" + str(len(self.l)-1) + " to add a detailed description to it."
 
   @botcmd(split_args_with=' ')
+  def todolist_remove(self, mess, args):
+    i = int(args[0])
+    if i < len(self.l):
+      temp_title = self.l[i].title
+      del self.l[i]
+      return "Successfully changed the description of entry [" + str(i) + "] " + temp_title + "."
+    else:
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+
+  @botcmd(split_args_with=' ')
   def todolist_describe(self, mess, args):
     i = int(args[0])
     if i < len(self.l):
       self.l[i].description = ''.join(args[1::])
-      return "Successfully changed the description of entry:\n[" + str(i) + "] " + self.l[args[0]].title + "."
+      return "Successfully changed the description of entry [" + str(i) + "] " + self.l[i].title + "."
     else:
       return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
