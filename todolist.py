@@ -11,13 +11,16 @@ class Entry:
     self.creator = creator 
     self.description = "No description. :("
     self.timestamp = time.time()
+    self.assignees = []
 
 class TodoList(BotPlugin):
 
+  ##############################################################################
+  # Triggers on plugin activation,
+  # loads the old todolist from a
+  # file if it exists.
+  ##############################################################################
   def activate(self):
-    # Triggers on plugin activation
-    ###
-
     # Read the csv file if it exists and initialise the list
     self.l = []
     try:
@@ -27,6 +30,7 @@ class TodoList(BotPlugin):
           temp_entry = Entry(row[0], row[1])
           temp_entry.description = row[2]
           temp_entry.timestamp = float(row[3])
+          temp_entry.assignees = [a for a in row[4::]]
           self.l.append(temp_entry)
     except IOError:
       logging.debug("Failed to load the list from the csv file. Creating a new list.")
@@ -37,7 +41,7 @@ class TodoList(BotPlugin):
     with open("todolist.csv", "w") as csv_file:
       csv_writer = csv.writer(csv_file)
       for item in self.l:
-        row = [item.title, item.creator, item.description, item.timestamp]
+        row = [item.title, item.creator, item.description, item.timestamp] + [a for a in item.assignees]
         csv_writer.writerow([str(s) for s in row])
 
   @botcmd
@@ -48,9 +52,11 @@ class TodoList(BotPlugin):
       ret += "\n[" + str(i) + "] " + item.title + ":\n"
       # Add the description to the output
       ret += item.description
+      # Add the assignees to the output
+      if len(self.l[i].assignees) > 0:
+        ret += "\nAssigned to this entry: " + ", ".join(self.l[i].assignees)
       # Add the creator and a timestamp to the output
       ret += "\n(by " + item.creator + ", " + datetime.datetime.fromtimestamp(item.timestamp).strftime('%d.%m.%Y %H:%M:%S') + ")"
-
     return ret
 
   @botcmd
@@ -77,5 +83,25 @@ class TodoList(BotPlugin):
       self.l[i].description = ' '.join(args[1::])
       self.write_csv_file()
       return "Successfully changed the description of entry [" + str(i) + "] " + self.l[i].title + "."
+    else:
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+
+  @botcmd(split_args_with=' ')
+  def todolist_assign(self, mess, args):
+    i = int(args[0])
+    if i < len(self.l):
+      self.l[i].assignees += args[1::]
+      self.write_csv_file()
+      return "Successfully assigned " + ", ".join(args[1::]) + " to [" + str(i) + "] " + self.l[i].title + "."
+    else:
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+
+  @botcmd(split_args_with=' ')
+  def todolist_unassign(self, mess, args):
+    i = int(args[0])
+    if i < len(self.l):
+      self.l[i].assignees = [a for a in self.l[i].assignees if a not in args[1::]]
+      self.write_csv_file()
+      return "Successfully unassigned " + ", ".join(args[1::]) + " from [" + str(i) + "] " + self.l[i].title + "."
     else:
       return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
