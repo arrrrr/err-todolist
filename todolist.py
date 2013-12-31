@@ -15,12 +15,8 @@ class Entry:
 
 class TodoList(BotPlugin):
 
-  ##############################################################################
-  # Triggers on plugin activation,
-  # loads the old todolist from a
-  # file if it exists.
-  ##############################################################################
   def activate(self):
+    """Triggers on plugin activation, loads the old todolist from a file if it exists."""
     # Read the csv file if it exists and initialise the list
     self.l = []
     try:
@@ -38,6 +34,7 @@ class TodoList(BotPlugin):
     super(TodoList, self).activate()
 
   def write_csv_file(self):
+    """Helper to write the whole list to the csv file"""
     with open("todolist.csv", "w") as csv_file:
       csv_writer = csv.writer(csv_file)
       for item in self.l:
@@ -45,7 +42,8 @@ class TodoList(BotPlugin):
         csv_writer.writerow([str(s) for s in row])
 
   @botcmd
-  def todolist_list(self, mess, args):
+  def todo_list(self, mess, args):
+    """Lists all entries of the todo list"""
     ret = "Listing all entries of the todolist:"
     for i, item in enumerate(self.l):
       # Add the item's id in the list and the title to the output
@@ -60,13 +58,15 @@ class TodoList(BotPlugin):
     return ret
 
   @botcmd
-  def todolist_create(self, mess, args):
+  def todo_create(self, mess, args):
+    """Creates a new entry on the todolist. Syntax: !todo create TITLE."""
     self.l.append(Entry(args, get_sender_username(mess)))
     self.write_csv_file()
-    return "Created a new entry with id " + str(len(self.l)-1) + ", use !todolist describe" + str(len(self.l)-1) + " to add a detailed description to it."
+    return "Created a new entry with id " + str(len(self.l)-1) + ", use !todo describe" + str(len(self.l)-1) + " to add a detailed description to it."
 
   @botcmd(split_args_with=' ')
-  def todolist_remove(self, mess, args):
+  def todo_remove(self, mess, args):
+    """Removes an entry from the todolist. Syntax !todo remove ID. Get the right ID by using !todo list"""
     i = int(args[0])
     if i < len(self.l):
       temp_title = self.l[i].title
@@ -74,34 +74,37 @@ class TodoList(BotPlugin):
       self.write_csv_file()
       return "Successfully changed the description of entry [" + str(i) + "] " + temp_title + "."
     else:
-      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
 
   @botcmd(split_args_with=' ')
-  def todolist_describe(self, mess, args):
+  def todo_describe(self, mess, args):
+    """Changes (and adds) the description of an entry. Syntax: !todo describe ID DESCRIPTION. Get the right ID by using !todo list"""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].description = ' '.join(args[1::])
       self.write_csv_file()
       return "Successfully changed the description of entry [" + str(i) + "] " + self.l[i].title + "."
     else:
-      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
 
   @botcmd(split_args_with=' ')
-  def todolist_assign(self, mess, args):
+  def todo_assign(self, mess, args):
+    """Assigns persons to an entry. Syntax: !todo assign ID PERSON_0 [PERSON_1] ... [PERSON_N]. Use !todo list to see all entries and their IDs."""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].assignees += args[1::]
       self.write_csv_file()
       return "Successfully assigned " + ", ".join(args[1::]) + " to [" + str(i) + "] " + self.l[i].title + "."
     else:
-      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todt list to see all entries and their IDs."
 
   @botcmd(split_args_with=' ')
-  def todolist_unassign(self, mess, args):
+  def todo_unassign(self, mess, args):
+    """Unassigns persons from an entry. Syntax: !todo unassign ID PERSON_0 [PERSON_1] ... [PERSON_N]. Use !todo list to see all entries and their IDs."""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].assignees = [a for a in self.l[i].assignees if a not in args[1::]]
       self.write_csv_file()
       return "Successfully unassigned " + ", ".join(args[1::]) + " from [" + str(i) + "] " + self.l[i].title + "."
     else:
-      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todolist list to see all entries and their indices."
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
