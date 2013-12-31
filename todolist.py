@@ -108,3 +108,14 @@ class TodoList(BotPlugin):
       return "Successfully unassigned " + ", ".join(args[1::]) + " from [" + str(i) + "] " + self.l[i].title + "."
     else:
       return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
+
+  @botcmd(split_args_with=' ')
+  def todo_chtitle(self, mess, args):
+    """Changes the title of an entry. Syntax: !todo chtitle ID NEW_TITLE."""
+    i = int(args[0])
+    if i < len(self.l):
+      self.l[i].title = " ".join(args[1::])
+      self.write_csv_file()
+      return "Successfully changed the title to " + self.l[i].title + "."
+    else:
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
