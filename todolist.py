@@ -59,14 +59,14 @@ class TodoList(BotPlugin):
 
   @botcmd
   def todo_create(self, mess, args):
-    """Creates a new entry on the todolist. Syntax: !todo create TITLE."""
+    """Creates a new entry on the todolist. Syntax: !todo create <title>."""
     self.l.append(Entry(args, get_sender_username(mess)))
     self.write_csv_file()
     return "Created a new entry with id " + str(len(self.l)-1) + ", use !todo describe" + str(len(self.l)-1) + " to add a detailed description to it."
 
   @botcmd(split_args_with=' ')
   def todo_remove(self, mess, args):
-    """Removes an entry from the todolist. Syntax !todo remove ID. Get the right ID by using !todo list"""
+    """Removes an entry from the todolist. Syntax !todo remove <ID>. Get the right ID by using !todo list"""
     i = int(args[0])
     if i < len(self.l):
       temp_title = self.l[i].title
@@ -78,7 +78,7 @@ class TodoList(BotPlugin):
 
   @botcmd(split_args_with=' ')
   def todo_describe(self, mess, args):
-    """Changes (and adds) the description of an entry. Syntax: !todo describe ID DESCRIPTION. Get the right ID by using !todo list"""
+    """Changes (and adds) the description of an entry. Syntax: !todo describe <ID> <description>. Get the right ID by using !todo list"""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].description = ' '.join(args[1::])
@@ -89,7 +89,7 @@ class TodoList(BotPlugin):
 
   @botcmd(split_args_with=' ')
   def todo_assign(self, mess, args):
-    """Assigns persons to an entry. Syntax: !todo assign ID PERSON_0 [PERSON_1] ... [PERSON_N]. Use !todo list to see all entries and their IDs."""
+    """Assigns persons to an entry. Syntax: !todo assign <ID> <person_0> [person_1] ... [person_n]. Use !todo list to see all entries and their IDs."""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].assignees += args[1::]
@@ -100,7 +100,7 @@ class TodoList(BotPlugin):
 
   @botcmd(split_args_with=' ')
   def todo_unassign(self, mess, args):
-    """Unassigns persons from an entry. Syntax: !todo unassign ID PERSON_0 [PERSON_1] ... [PERSON_N]. Use !todo list to see all entries and their IDs."""
+    """Unassigns persons from an entry. Syntax: !todo unassign <ID> <person_0 [person_1] ... [person_n]. Use !todo list to see all entries and their IDs."""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].assignees = [a for a in self.l[i].assignees if a not in args[1::]]
@@ -111,7 +111,7 @@ class TodoList(BotPlugin):
 
   @botcmd(split_args_with=' ')
   def todo_chtitle(self, mess, args):
-    """Changes the title of an entry. Syntax: !todo chtitle ID NEW_TITLE."""
+    """Changes the title of an entry. Syntax: !todo chtitle <ID> <new_tile>."""
     i = int(args[0])
     if i < len(self.l):
       self.l[i].title = " ".join(args[1::])
