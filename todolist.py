@@ -42,6 +42,11 @@ class TodoList(BotPlugin):
         csv_writer.writerow([str(s) for s in row])
 
   @botcmd
+  def todo(self, mess, args):
+    """Shorthand for !todo list"""
+    return self.todo_list(mess, args)
+
+  @botcmd
   def todo_list(self, mess, args):
     """Lists all entries of the todo list"""
     ret = ""
