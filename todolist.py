@@ -16,7 +16,7 @@ class Entry:
 class TodoList(BotPlugin):
 
   def activate(self):
-    """Triggers on plugin activation, loads the old todolist from a file if it exists."""
+    """Triggers on plugin activation, loads the old todo list from a file if it exists."""
     # Read the csv file if it exists and initialise the list
     self.l = []
     try:
@@ -44,7 +44,11 @@ class TodoList(BotPlugin):
   @botcmd
   def todo_list(self, mess, args):
     """Lists all entries of the todo list"""
-    ret = "Listing all entries of the todolist:"
+    ret = ""
+    if len(self.l) > 0:
+        ret += "Listing all entries of the todo list:"
+    else:
+        ret += "No entries yet. Set some tasks, lazybone!"
     for i, item in enumerate(self.l):
       # Add the item's id in the list and the title to the output
       ret += "\n[" + str(i) + "] " + item.title + ":\n"
@@ -59,20 +63,20 @@ class TodoList(BotPlugin):
 
   @botcmd
   def todo_create(self, mess, args):
-    """Creates a new entry on the todolist. Syntax: !todo create <title>."""
+    """Creates a new entry on the todo list. Syntax: !todo create <title>."""
     self.l.append(Entry(args, get_sender_username(mess)))
     self.write_csv_file()
-    return "Created a new entry with id " + str(len(self.l)-1) + ", use !todo describe" + str(len(self.l)-1) + " to add a detailed description to it."
+    return "Created a new entry with id " + str(len(self.l)-1) + ", use !todo describe " + str(len(self.l)-1) + " to add a detailed description."
 
   @botcmd(split_args_with=' ')
   def todo_remove(self, mess, args):
-    """Removes an entry from the todolist. Syntax !todo remove <ID>. Get the right ID by using !todo list"""
+    """Removes an entry from the todo list. Syntax !todo remove <ID>. Get the right ID by using !todo list"""
     i = int(args[0])
     if i < len(self.l):
       temp_title = self.l[i].title
       del self.l[i]
       self.write_csv_file()
-      return "Successfully changed the description of entry [" + str(i) + "] " + temp_title + "."
+      return "Successfully removed entry [" + str(i) + "] : " + temp_title + "."
     else:
       return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
 
@@ -96,7 +100,7 @@ class TodoList(BotPlugin):
       self.write_csv_file()
       return "Successfully assigned " + ", ".join(args[1::]) + " to [" + str(i) + "] " + self.l[i].title + "."
     else:
-      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todt list to see all entries and their IDs."
+      return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
 
   @botcmd(split_args_with=' ')
   def todo_unassign(self, mess, args):
@@ -114,8 +118,9 @@ class TodoList(BotPlugin):
     """Changes the title of an entry. Syntax: !todo chtitle <ID> <new_tile>."""
     i = int(args[0])
     if i < len(self.l):
+      temp_title = self.l[i].title
       self.l[i].title = " ".join(args[1::])
       self.write_csv_file()
-      return "Successfully changed the title to " + self.l[i].title + "."
+      return "Successfully changed the title from " + temp_title + " to " + self.l[i].title + " ."
     else:
       return "Couldn't find the todo list entry " + str(i) + ", sorry. Use !todo list to see all entries and their IDs."
